@@ -6,13 +6,7 @@ class main():
         self.solucao = None
 
     def verificar_solucao(self):
-        for elemento in self.fila:
-            if elemento.verificar_final():
-                self.solucao[elemento]
-                while elemento.pai:
-                    self.solucao.insert(0, elemento.pai)
-                    elemento = elemento.pai
-                break;
+
 
 
 
@@ -38,6 +32,8 @@ class Estados():
         valido_esq = self.mis_esq == self.cani_esq == 0
         valido_dir = self.mis_dir == self.cani_dir == 3
 
+        print(valido_esq and valido_dir)
+
         return valido_esq and valido_dir
 
 
@@ -54,8 +50,37 @@ class Estados():
 
         for movimento in regrasBarco:
             if self.lado == 'esq':
+                if(self.mis_dir < movimento['missionarios']):
+                    newMiss_dir = self.mis_dir + movimento['missionarios']
+                else:
+                    newMiss_dir = self.mis_dir - movimento['missionarios']
+
+                if (self.mis_esq < movimento['missionarios']):
+                    newMiss_esq = self.mis_esq + movimento['missionarios']
+                else:
+                    newMiss_esq = self.mis_dir - movimento['missionarios']
+
+                if (self.cani_dir < movimento['canibais']):
+                    newCani_dir = self.cani_dir + movimento['canibais']
+                else:
+                    newCani_dir = self.cani_dir - movimento['canibais']
+
+                if (self.cani_esq < movimento['canibais']):
+                    newCani_esq = self.cani_esq + movimento['canibais']
+                else:
+                    newCani_esq = self.cani_esq - movimento['canibais']
+
+            else:
                 newMiss_dir = self.mis_dir - movimento['missionarios']
                 newMiss_esq = self.mis_esq + movimento['missionarios']
+                newCani_dir = self.mis_dir - movimento['canibais']
+                newCani_esq = self.mis_esq - movimento['canibais']
+
+
+
+
+
+
 
 
 
