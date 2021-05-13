@@ -1,8 +1,6 @@
-
-
-
-
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from cmath import sqrt
 
 
 class Estados():
@@ -15,10 +13,14 @@ class Estados():
         self.lado = lado
         self.pai = None
         self.filhos = []
+        self.valor = 6;
+        self.posicao = []
+
+
 
     def __str__(self):
-        return 'Missionarios: {}\t| Missionarios: {}\nCanibais: {}\t| Canibais: {}'.format(
-            self.mis_esq, self.mis_dir, self.cani_esq, self.cani_dir)
+        return 'Mis: {}\t| Mis: {}\nCani: {}\t| Cani: {}'\
+            .format(self.mis_esq, self.mis_dir, self.cani_esq, self.cani_dir)
 
 
     def estado_valido(self):
@@ -37,6 +39,8 @@ class Estados():
         return valido_esq and valido_dir
 
 
+
+
     def gerar_filhos(self):
         retorno_lado = 'dir' if self.lado == 'esq' else 'esq'
 
@@ -50,25 +54,10 @@ class Estados():
 
         for movimento in regrasBarco:
             if self.lado == 'esq':
-                if(self.mis_dir < movimento['missionarios']):
-                    newMiss_dir = self.mis_dir + movimento['missionarios']
-                else:
-                    newMiss_dir = self.mis_dir - movimento['missionarios']
-
-                if (self.mis_esq < movimento['missionarios']):
-                    newMiss_esq = self.mis_esq + movimento['missionarios']
-                else:
-                    newMiss_esq = self.mis_dir - movimento['missionarios']
-
-                if (self.cani_dir < movimento['canibais']):
-                    newCani_dir = self.cani_dir + movimento['canibais']
-                else:
-                    newCani_dir = self.cani_dir - movimento['canibais']
-
-                if (self.cani_esq < movimento['canibais']):
-                    newCani_esq = self.cani_esq + movimento['canibais']
-                else:
-                    newCani_esq = self.cani_esq - movimento['canibais']
+                newMiss_dir = self.mis_dir - movimento['missionarios']
+                newMiss_esq = self.mis_dir - movimento['missionarios']
+                newCani_dir = self.cani_dir - movimento['canibais']
+                newCani_esq = self.cani_esq - movimento['canibais']
 
             else:
                 newMiss_dir = self.mis_dir - movimento['missionarios']
@@ -78,13 +67,14 @@ class Estados():
 
             filho = Estados(newMiss_esq, newMiss_dir, newCani_esq, newCani_dir, retorno_lado)
 
-            filho.pai = self
+            teste = sqrt((newMiss_esq + newCani_esq) * (newMiss_esq + newCani_esq) + (newMiss_dir + newCani_dir) * (newCani_dir + newCani_dir))
 
-            if filho.estado_valido():
-                for estado in filho:
-                    print(estado, '\n----------------')
-                self.filhos.append(filho)
+            if(self.valor > teste):
+                filho.pai = self
+                filho.valor = teste
 
+                if filho.estado_valido():
+                    self.filhos.append(filho)
 
 
 
@@ -94,15 +84,15 @@ class main():
         self.solucao = None
 
     def gerar_solucao_valida(self):
-        for elemento in self.fila():
-            if elemento.verificar_final():
-                self.solucao = [elemento]
-                while elemento.pai:
-                    self.solucao.insert(0, elemento.pai)
+        for componente in self.fila():
+            if componente.verificar_final():
+                self.solucao = [componente]
+                while componente.pai:
+                    self.solucao.insert(0, componente.pai)
                     elemento = elemento.pai
                 break;
-            elemento.gerar_filhos()
-            self.fila.extend(elemento.filhos)
+            componente.gerar_filhos()
+            self.fila.extend(componente.filhos)
 
 
 
