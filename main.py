@@ -1,3 +1,6 @@
+#Autor: Robson Liesner de Lima Junior
+#Problema dos Missionarios e Canibais
+
 from cmath import sqrt
 
 
