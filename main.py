@@ -1,102 +1,106 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from cmath import sqrt
 
 
 class Estados():
-    def __init__(self, mis_esq, mis_dir, cani_esq, cani_dir, lado):
 
-        self.mis_esq = mis_esq
-        self.mis_dir = mis_dir
-        self.cani_esq = cani_esq
-        self.cani_dir = cani_dir
-        self.lado = lado
+
+    def __init__(self, missionarios_esq, missionarios_dir, canibais_esq, canibais_dir, lado_rio):
+
+        self.missionarios_esq = missionarios_esq
+        self.missionarios_dir = missionarios_dir
+        self.canibais_esq = canibais_esq
+        self.canibais_dir = canibais_dir
+        self.lado_rio = lado_rio
         self.pai = None
         self.filhos = []
-        self.valor = 6;
-        self.posicao = []
-
-
+        self.valor = []
+        self.teste = 0
 
     def __str__(self):
-        return 'Mis: {}\t| Mis: {}\nCani: {}\t| Cani: {}'\
-            .format(self.mis_esq, self.mis_dir, self.cani_esq, self.cani_dir)
 
+        return 'Miss: {}\t| Miss: {}\nCani: {}\t| Cani: {}'.format(
+            self.missionarios_esq, self.missionarios_dir, self.canibais_esq, self.canibais_dir
+        )
 
     def estado_valido(self):
-        if(self.mis_esq < 0) or (self.mis_dir < 0) or (self.cani_dir < 0) or (self.cani_esq < 0):
+
+        if ((self.missionarios_esq < 0) or (self.missionarios_dir < 0)
+            or (self.canibais_esq < 0) or (self.canibais_dir < 0)):
             return False
 
-        return ((self.mis_esq == 0 or self.mis_esq >= self.cani_esq) and
-                (self.mis_dir == 0 or self.mis_dir >= self.cani_dir))
-
+        return ((self.missionarios_esq == 0 or self.missionarios_esq >= self.canibais_esq) and
+                (self.missionarios_dir == 0 or self.missionarios_dir >= self.canibais_dir))
 
 
     def verificar_final(self):
-        valido_esq = self.mis_esq == self.cani_esq == 0
-        valido_dir = self.mis_dir == self.cani_dir == 3
 
-        return valido_esq and valido_dir
-
-
-
+        resultado_esq = self.missionarios_esq == self.canibais_esq == 0
+        resultado_dir = self.missionarios_dir == self.canibais_dir == 3
+        return resultado_esq and resultado_dir
 
     def gerar_filhos(self):
-        retorno_lado = 'dir' if self.lado == 'esq' else 'esq'
 
-        regrasBarco = [
+
+        novo_lado_rio = 'dir' if self.lado_rio == 'esq' else 'esq'
+
+        movimentos = [
             {'missionarios': 2, 'canibais': 0},
             {'missionarios': 1, 'canibais': 0},
             {'missionarios': 1, 'canibais': 1},
             {'missionarios': 0, 'canibais': 1},
-            {'missionarios': 0, 'canibais': 1},
+            {'missionarios': 0, 'canibais': 2},
         ]
 
-        for movimento in regrasBarco:
-            if self.lado == 'esq':
-                newMiss_dir = self.mis_dir - movimento['missionarios']
-                newMiss_esq = self.mis_dir - movimento['missionarios']
-                newCani_dir = self.cani_dir - movimento['canibais']
-                newCani_esq = self.cani_esq - movimento['canibais']
-
+        for movimento in movimentos:
+            if self.lado_rio == 'esq':
+                missionarios_esq = self.missionarios_esq - movimento['missionarios']
+                missionarios_dir = self.missionarios_dir + movimento['missionarios']
+                canibais_esq = self.canibais_esq - movimento['canibais']
+                canibais_dir = self.canibais_dir + movimento['canibais']
             else:
-                newMiss_dir = self.mis_dir - movimento['missionarios']
-                newMiss_esq = self.mis_esq + movimento['missionarios']
-                newCani_dir = self.mis_dir - movimento['canibais']
-                newCani_esq = self.mis_esq - movimento['canibais']
+                missionarios_dir = self.missionarios_dir - movimento['missionarios']
+                missionarios_esq = self.missionarios_esq + movimento['missionarios']
+                canibais_dir = self.canibais_dir - movimento['canibais']
+                canibais_esq = self.canibais_esq + movimento['canibais']
 
-            filho = Estados(newMiss_esq, newMiss_dir, newCani_esq, newCani_dir, retorno_lado)
+            filho = Estados(missionarios_esq, missionarios_dir, canibais_esq,
+                           canibais_dir, novo_lado_rio)
 
-            teste = sqrt((newMiss_esq + newCani_esq) * (newMiss_esq + newCani_esq) + (newMiss_dir + newCani_dir) * (newCani_dir + newCani_dir))
+            self.teste = sqrt((missionarios_esq + canibais_esq) * (missionarios_esq + canibais_esq) + (missionarios_dir + canibais_dir) * (
+                        missionarios_dir + canibais_dir))
 
-            if(self.valor > teste):
+
+            if(len(self.valor) != self.teste):
+                self.valor.append(self.teste)
                 filho.pai = self
-                filho.valor = teste
-
                 if filho.estado_valido():
                     self.filhos.append(filho)
 
 
+class Inicio():
 
-class main():
+
     def __init__(self):
-        self.fila = [Estados(3, 0, 3, 0, 'esquerda')]
+        self.fila_execucao = [Estados(3, 0, 3, 0, 'esq')]
         self.solucao = None
 
     def gerar_solucao_valida(self):
-        for componente in self.fila():
-            if componente.verificar_final():
-                self.solucao = [componente]
-                while componente.pai:
-                    self.solucao.insert(0, componente.pai)
+        for elemento in self.fila_execucao:
+            if elemento.verificar_final():
+                self.solucao = [elemento]
+                while elemento.pai:
+                    self.solucao.insert(0, elemento.pai)
                     elemento = elemento.pai
                 break;
-            componente.gerar_filhos()
-            self.fila.extend(componente.filhos)
+            elemento.gerar_filhos()
+            self.fila_execucao.extend(elemento.filhos)
 
 
-
-
+def main():
+    problema = Inicio()
+    problema.gerar_solucao_valida()
+    for estado in problema.solucao:
+        print(estado, '\n*********************')
 
 if __name__ == '__main__':
     main()
